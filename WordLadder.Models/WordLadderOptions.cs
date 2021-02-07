@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using static WordLadder.Models.JobPayload;
+
+namespace WordLadder.Models
+{
+    public class WordLadderOptions
+    {
+        public const string Key = "WordLadderOptions";
+
+        /// <summary>
+        /// Size of the words allowed as arguments
+        /// </summary>
+        public int? AllowedWordSize { get; set; }
+
+        /// <summary>
+        /// if after processing one ladder asks for another set of arguments or finish
+        /// </summary>
+        public bool? ContinuosMode { get; set; }
+
+        /// <summary>
+        /// if the search sould be done by searching in deep or breath
+        /// </summary>
+        public SearchType? TypeOfSearch { get; set; }
+
+        /// <summary>
+        /// the number of results to retrieve: FIRST, TOP_N, ALL
+        /// </summary>
+        public ResultType? TypeOfResult { get; set; }
+
+        /// <summary>
+        /// Number o results to be retrieved if ResultType=TOP_N
+        /// </summary>
+        public int? TOP_N_Amount { get; set; }
+        
+        /// <summary>
+        /// Default word list file path
+        /// </summary>
+        public string LocalWordDictionaryFilePath { get; set; }
+    }
+}

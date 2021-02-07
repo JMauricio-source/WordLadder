@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WordLadder": {
+      "commandName": "Project",
+      "commandLineArgs": "-s bard       -f chaw -d              \"C:\\Work\\Projectos2021\\Puzzle\\words-english\\words-english.txt\" -o \"C:\\Work\\Projectos2021\\Puzzle\\words-english\\result.txt\""
+    }
+  }
+}
