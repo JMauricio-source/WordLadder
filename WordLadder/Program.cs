@@ -61,6 +61,10 @@ namespace WordLadder
                     services.AddSingleton<IPayloadManager, CommandLinePayloadLoader>();
                     services.AddSingleton<IWordLadderProcessor, WordLadderProcessor>();
                     services.AddSingleton<IWordListRepository, WordListRepository>();
+                    services.AddSingleton<IPublisherHub, PublisherHub>();
+                    //publishers
+                    services.AddSingleton<IPublisher, ConsolePublisher>();
+                    services.AddSingleton<IPublisher, FileSystemPublisher>();
                 })
             ;
     }

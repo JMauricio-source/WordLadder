@@ -5,6 +5,9 @@ using static WordLadder.Models.JobPayload;
 
 namespace WordLadder.Models
 {
+    /// <summary>
+    /// Configurations options
+    /// </summary>
     public class WordLadderOptions
     {
         public const string Key = "WordLadderOptions";
@@ -38,5 +41,10 @@ namespace WordLadder.Models
         /// Default word list file path
         /// </summary>
         public string LocalWordDictionaryFilePath { get; set; }
+
+        /// <summary>
+        /// Default Result location
+        /// </summary>
+        public string ResultsDefaultPath { get; set; }
     }
 }

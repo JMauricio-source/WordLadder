@@ -11,17 +11,20 @@ namespace WordLadder.Services
         private readonly ILogger _logger;
         private IPayloadManager _payloadManager;
         private IWordLadderProcessor _wordLadderProcessor;
+        private IPublisherHub _publisherHub;
 
         public WordLadderHostedService(
             ILogger<WordLadderHostedService> logger,
             IHostApplicationLifetime appLifetime,
             IPayloadManager payloadManager,
-            IWordLadderProcessor wordLadderProcessor)
+            IWordLadderProcessor wordLadderProcessor,
+            IPublisherHub publisherHub
+            )
         {
-
             _logger = logger;
             _payloadManager = payloadManager;
             _wordLadderProcessor = wordLadderProcessor;
+            _publisherHub = publisherHub;
 
             appLifetime.ApplicationStarted.Register(OnStarted);
             appLifetime.ApplicationStopping.Register(OnStopping);
@@ -29,11 +32,12 @@ namespace WordLadder.Services
 
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("1. StartAsync has been called.");
+            await ExecuteAsync(cancellationToken);
 
-            return Task.CompletedTask;
+            //return await Task.CompletedTask;
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
@@ -67,9 +71,8 @@ namespace WordLadder.Services
                 {
                     var payload = _payloadManager.LoadJob();
                     var result =  await _wordLadderProcessor.ProcessAsync(payload);
-                    //Publish
-
-                    //if(payload.)
+                    _publisherHub.PublishResultToAll(result);
+                    break;
                 }
                 else
                 {
