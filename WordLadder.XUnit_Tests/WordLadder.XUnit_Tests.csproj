@@ -26,4 +26,8 @@
     <ProjectReference Include="..\WordLadder\WordLadder.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
