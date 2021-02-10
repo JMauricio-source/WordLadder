@@ -22,6 +22,11 @@ The WordLadder project consiste of three projects plus a Test project:
     Contain classes for type definition only used in the other two projects.
 ### 3. WordLadder.Services - 
     Interface declarations and service implementation for injected services.
+    Here we define the services:
+        - CommandLinePayloadLoader - Loads the arguments passed by the user and creates a JobPayloadCommand that will define the search parameters.
+        - WordLadderProcessor - The class that constains the Word Ladder Algoritm.
+        - WordListRepository - Abstracts the data aquisition layer. Readsthe word list from a txt file and make the lines availables to the app.
+        - 
 
 ## The Algorithm
 
