@@ -11,7 +11,7 @@ namespace WordLadder.Models
         public MatchResult GetNextSibling(MatchResult currentNode) 
         {
             if (currentNode.ParentMatch == null) return null;
-            var _next =  currentNode.ParentMatch.MatchesList.Find(currentNode).Next;
+            var _next =  currentNode.ParentMatch.MatchesList.Find(currentNode)?.Next;
 
             return _next != null ? _next.Value : null;
         }

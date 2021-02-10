@@ -11,6 +11,7 @@
     <Compile Remove="Models\MatchResultLinkedList.cs" />
     <Compile Remove="Models\WordTokens.cs" />
     <Compile Remove="Services\CommandLinePayloadLoader.cs" />
+    <Compile Remove="TmpProcessingService.cs" />
   </ItemGroup>
 
   <ItemGroup>

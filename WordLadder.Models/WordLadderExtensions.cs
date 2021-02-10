@@ -11,12 +11,11 @@ namespace WordLadder.Models
         /// </summary>
         /// <param name="jobPayload"></param>
         /// <returns></returns>
-        public static string Print(this JobPayload jobPayload)
+        public static string Print(this JobPayloadCommand jobPayload)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Start word     : {jobPayload.StartWord}");
             sb.AppendLine($"End word       : {jobPayload.EndWord}");
-            sb.AppendLine($"Type of Result : {jobPayload.TypeOfResult}");
             sb.AppendLine($"Type of search : {jobPayload.TypeOfSearch}");
             sb.AppendLine($"Source file    : {jobPayload.SourceFilePath}");
             sb.AppendLine($"Results file   : {jobPayload.ResultPublicationPath}");
@@ -28,6 +27,7 @@ namespace WordLadder.Models
         {
             StringBuilder sb = new StringBuilder();
 
+            sb.AppendLine("");
             sb.AppendLine("Word Ladder game");
             if (processingResult.Start != null && processingResult.End != null)
             {

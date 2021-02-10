@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static WordLadder.Models.JobPayload;
+using static WordLadder.Models.JobPayloadCommand;
 
 namespace WordLadder.Models
 {
@@ -26,11 +26,6 @@ namespace WordLadder.Models
         /// if the search sould be done by searching in deep or breath
         /// </summary>
         public SearchType? TypeOfSearch { get; set; }
-
-        /// <summary>
-        /// the number of results to retrieve: FIRST, TOP_N, ALL
-        /// </summary>
-        public ResultType? TypeOfResult { get; set; }
 
         /// <summary>
         /// Number o results to be retrieved if ResultType=TOP_N

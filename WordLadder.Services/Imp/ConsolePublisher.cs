@@ -7,6 +7,9 @@ using WordLadder.Services.Abstract;
 
 namespace WordLadder.Services.Imp
 {
+    /// <summary>
+    /// Publisher for the Console
+    /// </summary>
     public class ConsolePublisher : IPublisher
     {
         private ILogger<ConsolePublisher> _logger;
@@ -21,7 +24,7 @@ namespace WordLadder.Services.Imp
             Console.WriteLine(result.Print());
         }
 
-        public void Publish(string message, JobPayload payload)
+        public void Publish(string message, JobPayloadCommand payload)
         {
             Console.WriteLine(payload.Print());
             Console.WriteLine(message);

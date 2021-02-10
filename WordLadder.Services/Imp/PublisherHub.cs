@@ -18,7 +18,7 @@ namespace WordLadder.Services.Imp
             _publishers = publishers;
         }
 
-        public void PublishMessageToAll(string message, JobPayload payload)
+        public void PublishMessageToAll(string message, JobPayloadCommand payload)
         {
             foreach (var publisher in _publishers)
             {

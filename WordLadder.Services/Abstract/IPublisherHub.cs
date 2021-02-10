@@ -10,6 +10,6 @@ namespace WordLadder.Services.Abstract
 
         void PublishResultToAll(ProcessingResult result);
 
-        void PublishMessageToAll(string message, JobPayload payload);
+        void PublishMessageToAll(string message, JobPayloadCommand payload);
     }
 }

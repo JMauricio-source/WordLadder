@@ -4,9 +4,12 @@ using System.Text;
 
 namespace WordLadder.Models
 {
-    public class JobPayload
+    /// <summary>
+    /// Holds all the information to parametize the Word Ladder Algorithm
+    /// </summary>
+    public class JobPayloadCommand
     {
-        public JobPayload(){}
+        public JobPayloadCommand(){}
 
         public string StartWord { get; set; }
         public string EndWord { get; set; }
@@ -15,7 +18,6 @@ namespace WordLadder.Models
         public string ResultPublicationPath { get; set; }
 
         public SearchType TypeOfSearch { get; set; }
-        public ResultType TypeOfResult { get; set; }
 
         public enum SearchType
         {
@@ -23,11 +25,6 @@ namespace WordLadder.Models
             DEEP_FIRST
         }
 
-        public enum ResultType
-        {
-            FIRST,
-            TOP_N,
-            ALL
-        }
+       
     }
 }

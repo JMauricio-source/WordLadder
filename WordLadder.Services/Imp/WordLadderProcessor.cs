@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,17 +18,17 @@ namespace WordLadder.Services.Imp
         private IWordListRepository _repository;
         private List<string> _workingWordList;
         private List<string> _workingMatchList;
-        
+        private WordLadderOptions _wordLadderOptions;
         private ProcessingResult _processingResult;
 
         public WordLadderProcessor(
             ILogger<WordLadderProcessor> logger,
-            IWordListRepository repository
+            IWordListRepository repository, IOptions<WordLadderOptions> options
             )
         {
             _logger = logger;
             _repository = repository;
-            
+            _wordLadderOptions = options.Value;
             _workingMatchList = new List<string>();
         }
 
@@ -35,11 +36,10 @@ namespace WordLadder.Services.Imp
         {
             IsFinalOK,
             IsFinalNotOK,
-            IsValidPartial,
             Continue
         }
 
-        Task<ProcessingResult> IWordLadderProcessor.ProcessAsync(JobPayload payload)
+        Task<ProcessingResult> IWordLadderProcessor.ProcessAsync(JobPayloadCommand payload)
         {
             var _startWord = payload.StartWord;
             var _wordSize = _startWord.Length;
@@ -47,7 +47,7 @@ namespace WordLadder.Services.Imp
 
             List<string> resultList = new List<string>() { _startWord };
 
-            //get word list
+       
             _workingMatchList.Clear();
             _workingWordList = _repository.GetFiltered((_word) => _word.Length == _wordSize);
             _workingWordList.Remove(_startWord);
@@ -59,37 +59,46 @@ namespace WordLadder.Services.Imp
             cycleResult = MatchingCycleSearchable(_wordSize, mResult.SourceWord, mResult, payload);
             pointer = mResult;
             int counter = 0;
-            keepProcessing = cycleResult == ResultEval.Continue || cycleResult == ResultEval.IsValidPartial;
+            keepProcessing = cycleResult == ResultEval.Continue;
 
             while (keepProcessing)
             {
-                //Console.WriteLine($"Nível: {counter}");
+                //
                 foreach (var mr in pointer.MatchesList)
                 {
                     cycleResult = MatchingCycleSearchable(_wordSize, mr.SourceWord, mr, payload);
-                    // _nextMatches = RemoveDuplicates(_nextMatches);
-                    //PrintNode(mr);
-                    keepProcessing = cycleResult == ResultEval.Continue || cycleResult == ResultEval.IsValidPartial;
+
+                    keepProcessing = cycleResult == ResultEval.Continue;
                     if (!keepProcessing) break;
                 }
 
-                //_currentMatches = RemoveDuplicates(_nextMatches);
-                pointer = NextNodeBreadFirst(pointer);
+                pointer = payload.TypeOfSearch == JobPayloadCommand.SearchType.BREATH_FIRST ? NextNodeBreadFirst(pointer) : NextNodeDeepFirst(pointer);
                 keepProcessing &= pointer != null;
                 counter++;
-            }
-            //
-            if (_processingResult.End == null) 
-            {
-                _processingResult.End = DateTimeOffset.UtcNow;
                 
             }
+            //
             
-            //return Task.FromResult(resultList);
+
+            PrepareResult(payload);
+
             return Task.FromResult(_processingResult);
         }
 
-        private void SetInitialResult(JobPayload payload)
+        private void PrepareResult(JobPayloadCommand payload)
+        {
+            if (_processingResult.Results.Count > 0)
+            {
+                _processingResult.WasSuccefull = true;
+                _processingResult.ResultMessage = "Found a sequence between the start and end words.";
+            }
+            if (_processingResult.End == null)
+            {
+                _processingResult.End = DateTimeOffset.UtcNow;
+            }
+        }
+
+        private void SetInitialResult(JobPayloadCommand payload)
         {
             _processingResult = new ProcessingResult();
             _processingResult.Payload = payload;
@@ -98,27 +107,39 @@ namespace WordLadder.Services.Imp
             _processingResult.ResultMessage = "Unable to find a path bettween the start and end word";
         }
 
-        private ResultEval MatchingCycleSearchable(int _wordSize, string _startWord, MatchResult mResult, JobPayload payload)
+        private ResultEval MatchingCycleSearchable(int _wordSize, string _startWord, MatchResult mResult, JobPayloadCommand payload)
         {
 
             var mutations = GenerateMutations(_wordSize, _startWord);
             var regexSet = GenerateRegex(_wordSize, mutations);
-            GenerateMatchesForDeepFirst(regexSet, mResult);
+            GenerateMatches(regexSet, mResult);
 
             var isfinal = IsFinal(mResult.MatchesList.Select(e => e.SourceWord).ToList(), payload.EndWord, payload);
             if (isfinal == ResultEval.IsFinalNotOK || isfinal == ResultEval.IsFinalOK)
             {
-                //File.WriteAllText(payload.ResultPublicationPath, PrintPath(mResult, payload.EndWord));
-                //PrintPath(mResult);
-                _processingResult.End = DateTimeOffset.UtcNow;
+                _processingResult.Results.Add(GetTreeLine(mResult, payload.EndWord));
+                
                 if (isfinal == ResultEval.IsFinalOK)
                 {
-                    _processingResult.Results.Add(GetTreeLine(mResult, payload.EndWord));
+                    _processingResult.End = DateTimeOffset.UtcNow;
                     _processingResult.WasSuccefull = true;
                 }
             }
 
             return isfinal;
+        }
+
+        private ResultEval IsFinal(List<string> resultsList, string endWord, JobPayloadCommand payload)
+        {
+            ResultEval resultEval = ResultEval.Continue;
+
+
+            if (resultsList.Contains(endWord))
+            {
+                resultEval = ResultEval.IsFinalOK;
+            }
+
+             return resultEval;
         }
 
         private List<string> GetTreeLine(MatchResult mResult, string finalWord)
@@ -157,7 +178,7 @@ namespace WordLadder.Services.Imp
             return regexp;
         }
 
-        private List<string> GenerateMatchesForDeepFirst(Regex[] regexset, MatchResult mResult)
+        private List<string> GenerateMatches(Regex[] regexset, MatchResult mResult)
         {
             List<string> matches = new List<string>();
 
@@ -166,6 +187,7 @@ namespace WordLadder.Services.Imp
                                 ).Select(e => e).ToList()));
 
             matches = matches.Except(this._workingMatchList).ToList();
+            //var matches2 = matches.Except(this._workingMatchList).ToList();
             this._workingMatchList.AddRange(matches);
 
             matches.ForEach(e => mResult.MatchesList.AddLast(new MatchResult(e, mResult)));
@@ -175,6 +197,7 @@ namespace WordLadder.Services.Imp
 
         private MatchResult NextNodeBreadFirst(MatchResult current)
         {
+            // if it is not the start word
             if (current.ParentMatch != null)
             {
                 var n = current.ParentMatch.MatchesList.GetNextSibling(current);
@@ -185,20 +208,39 @@ namespace WordLadder.Services.Imp
             return null;
         }
 
-        private ResultEval IsFinal(List<string> resultsList, string endWord, JobPayload payload)
-        {
-            ResultEval resultEval = ResultEval.Continue;
 
-            switch (payload.TypeOfResult)
+        private MatchResult NextNodeDeepFirst(MatchResult current)
+        {
+            // if it is not the start word
+            if (current.ParentMatch != null)
             {
-                case JobPayload.ResultType.FIRST: { 
-                            if (resultsList == null || resultsList.Contains(endWord)) resultEval = ResultEval.IsFinalOK;
-                               
-                            }; break;
-                case JobPayload.ResultType.ALL: { }; break;
-                case JobPayload.ResultType.TOP_N: { }; break;
+                if (current.MatchesList.Count > 0)
+                {
+                    //fetch first descendant
+                    return current.MatchesList.First<MatchResult>();
+                }
+                else
+                {
+                    var _current = current;
+                    current.ParentMatch.MatchesList.Remove(current);
+                    var tmp = current.ParentMatch.MatchesList.GetNextSibling(_current);
+
+                    while (tmp == null && _current.ParentMatch.ParentMatch != null)
+                    {
+                        tmp = _current.ParentMatch.ParentMatch.MatchesList.GetNextSibling(_current.ParentMatch);
+                        if (tmp == null) tmp = _current.ParentMatch.ParentMatch;
+                    }
+
+                    return tmp;
+                }
+
+
             }
-            return resultEval;
+            if (current.MatchesList.Count > 0) return current.MatchesList.First<MatchResult>();
+
+            return null;
         }
+
+
     }
 }

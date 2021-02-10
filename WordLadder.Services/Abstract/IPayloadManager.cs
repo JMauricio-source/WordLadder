@@ -7,7 +7,7 @@ namespace WordLadder.Services.Abstract
 {
     public interface IPayloadManager
     {
-        JobPayload LoadJob();
+        JobPayloadCommand LoadJob();
 
         bool IsValid(out string errors);
         bool HaveContinuosMode { get; set; }

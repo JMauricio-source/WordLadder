@@ -60,7 +60,7 @@ namespace WordLadder
 
  
 
-        public List<string> ProcessTwo(List<string> wordList, JobPayload payload)
+        public List<string> ProcessTwo(List<string> wordList, JobPayloadCommand payload)
         {
             var _startWord = payload.StartWord;
             var _wordSize = _startWord.Length;
@@ -122,7 +122,7 @@ namespace WordLadder
         //    return IsFinal(_matchedList, payload.EndWord);
         //}
 
-        private bool MatchingCycleSearchable(int _wordSize, string _startWord, MatchResult mResult, JobPayload payload)
+        private bool MatchingCycleSearchable(int _wordSize, string _startWord, MatchResult mResult, JobPayloadCommand payload)
         {
 
             var mutations = GenerateMutations(_wordSize, _startWord);

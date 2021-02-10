@@ -11,52 +11,54 @@ using WordLadder.Services.Abstract;
 
 namespace WordLadder.Services.Imp
 {
+    /// <summary>
+    /// Word list repository sourced by the file System
+    /// </summary>
     public class WordListRepository : IWordListRepository
     {
-        private List<string> baseWordList;
+        private List<string> _baseWordList;
         private string[] _args;
-        private StringBuilder validationErrors;
-        private WordLadderOptions wordLadderOptions;
+        private WordLadderOptions _wordLadderOptions;
         ILogger<WordListRepository> _logger;
 
         public WordListRepository(ILogger<WordListRepository> logger, IOptions<WordLadderOptions> options)
         {
-            baseWordList = new List<string>();
+            _baseWordList = new List<string>();
             _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
-            wordLadderOptions = options.Value;
+            _wordLadderOptions = options.Value;
             _logger = logger;
         }
 
         public List<string> All()
         {
-            if (baseWordList.Count == 0) Load();
+            if (_baseWordList.Count == 0) Load();
 
-            return this.baseWordList;
+            return this._baseWordList;
         }
 
         public void Clean()
         {
-            baseWordList.Clear();
+            _baseWordList.Clear();
         }
 
         public List<string> GetFiltered(Func<string, bool> filterPredicate)
         {
-            if (baseWordList.Count == 0) Load();
+            if (_baseWordList.Count == 0) Load();
 
-            return this.baseWordList.Where(filterPredicate).Select(e => e).ToList();
+            return this._baseWordList.Where(filterPredicate).Select(e => e).ToList();
         }
 
         private void Load()
         {
             try
             {
-                var payload = CommonHelpers.LoadJob(_args);
+                var payload = CommonHelpers.LoadJob(_args,  _wordLadderOptions.TypeOfSearch.Value);
                 string[] _lines;
                 if (!string.IsNullOrEmpty(payload.SourceFilePath))
                 {
                     _lines = File.ReadAllLines(payload.SourceFilePath);
                 }
-                else if (!string.IsNullOrEmpty(wordLadderOptions.LocalWordDictionaryFilePath))
+                else if (!string.IsNullOrEmpty(_wordLadderOptions.LocalWordDictionaryFilePath))
                 {
                     _lines = File.ReadAllLines(payload.SourceFilePath);
                 }
@@ -70,7 +72,7 @@ namespace WordLadder.Services.Imp
                     _logger.LogError("word Source not found. Unable to continue to process.");
                     throw new SourceNotFoundException();
                 }
-                this.baseWordList.AddRange(_lines);
+                this._baseWordList.AddRange(_lines);
             }
             catch (Exception ex)
             {

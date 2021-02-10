@@ -11,6 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace WordLadder.Services.Imp
 {
+    /// <summary>
+    /// Manage JobPayload Acquisition
+    /// </summary>
     public class CommandLinePayloadLoader : IPayloadManager
     {
         private string[] _args;
@@ -73,9 +76,9 @@ namespace WordLadder.Services.Imp
             return allOk;
         }
 
-        public JobPayload LoadJob()
+        public JobPayloadCommand LoadJob()
         {
-            return CommonHelpers.LoadJob(_args);
+            return CommonHelpers.LoadJob(_args,  wordLadderOptions.TypeOfSearch.Value);
         }
 
         private bool AllMandatoryArgsPresentRule(Dictionary<string, string> keyValuePairs)

@@ -9,6 +9,6 @@ namespace WordLadder.Services.Abstract
     {
         void Publish(ProcessingResult result);
 
-        void Publish(string message, JobPayload payload);
+        void Publish(string message, JobPayloadCommand payload);
     }
 }

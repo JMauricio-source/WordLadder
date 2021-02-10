@@ -15,8 +15,7 @@ namespace WordLadder.Models
             Results = new List<List<string>>();
         }
 
-        
-        public JobPayload Payload { get; set; }
+        public JobPayloadCommand Payload { get; set; }
         public List<List<string>> Results;
         public bool WasSuccefull { get; set; }
         public string ResultMessage { get; set; }

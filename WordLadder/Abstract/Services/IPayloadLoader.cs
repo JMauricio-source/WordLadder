@@ -8,7 +8,7 @@ namespace WordLadder.Abstract.Services
     public interface IPayloadLoader
     {
 
-        JobPayload LoadJob();
+        JobPayloadCommand LoadJob();
 
         bool IsValid( out string errors);
 

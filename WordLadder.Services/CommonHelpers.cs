@@ -31,18 +31,16 @@ namespace WordLadder.Services
             return dict;
         }
 
-        public static JobPayload LoadJob(string[] _args)
+        public static JobPayloadCommand LoadJob(string[] _args, JobPayloadCommand.SearchType searchType )
         {
-            JobPayload j = new JobPayload();
+            JobPayloadCommand j = new JobPayloadCommand();
             var dict = keyValuePairs(_args);
 
             j.StartWord = dict[_s];
             j.EndWord = dict[_f];
             j.SourceFilePath = dict[_d];
             j.ResultPublicationPath = dict[_o];
-            //[todo: get from cmd line]
-            j.TypeOfResult = JobPayload.ResultType.FIRST;
-            j.TypeOfSearch = JobPayload.SearchType.BREATH_FIRST;
+            j.TypeOfSearch = searchType;
 
             return j;
         }
