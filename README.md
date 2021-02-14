@@ -16,7 +16,17 @@ The project was written in C# using Microsoft .Net Core 3.1 framework and is a C
 ## Code structure/Architecture
 
 The WordLadder project consiste of three projects plus a Test project:
-### 1. WordLadder 
+### 1. WordLadder - 
+    Console App that hosts a BackgroundWorker service that runs the actual processor.
+### 2. WordLadder.Models - 
+    Contain classes for type definition only used in the other two projects.
+### 3. WordLadder.Services - 
+    Interface declarations and service implementation for injected services.
+    Here we define the services:
+        - CommandLinePayloadLoader - Loads the arguments passed by the user and creates a JobPayloadCommand that will define the search parameters.
+        - WordLadderProcessor - The class that constains the Word Ladder Algoritm.
+        - WordListRepository - Abstracts the data aquisition layer. Readsthe word list from a txt file and make the lines availables to the app.
+        - 
 
 ## The Algorithm
 
