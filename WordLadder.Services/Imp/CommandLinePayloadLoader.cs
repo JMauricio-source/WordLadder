@@ -35,7 +35,7 @@ namespace WordLadder.Services.Imp
 
         public CommandLinePayloadLoader(IOptions<WordLadderOptions> options)
         {
-            _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
+            _args = GetCommandLineArgs();
             wordLadderOptions = options.Value;
 
             validationErrors = new StringBuilder();
@@ -46,6 +46,7 @@ namespace WordLadder.Services.Imp
 
         }
 
+        public virtual string[] GetCommandLineArgs() => Environment.GetCommandLineArgs().Skip(1).ToArray();
         public string HelpText()
         {
             StringBuilder sb = new StringBuilder();
@@ -68,6 +69,7 @@ namespace WordLadder.Services.Imp
             if (!AllMandatoryArgsPresentRule(pairs))
             {
                 errors = validationErrors.ToString();
+                allOk= false;
                 return allOk;
             }
             allOk &= AllArgsValidRules(pairs);
@@ -114,7 +116,7 @@ namespace WordLadder.Services.Imp
                 ||
                 !System.IO.File.Exists(Path.GetFullPath(keyValuePairs[_d])))
             {
-                validationErrors.AppendLine($"Parameter final word({_f}) must have {allowedWordSize} chars.");
+                validationErrors.AppendLine($"Parameter dictionary ({_d}) must a valid file path.");
                 rulesOK = false;
             }
 

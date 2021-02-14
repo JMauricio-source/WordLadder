@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -66,19 +67,25 @@ namespace WordLadder.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                string _errors = "";
-                if (_payloadManager.IsValid(out _errors))
+                try
                 {
-                    var payload = _payloadManager.LoadJob();
-                    var result =  await _wordLadderProcessor.ProcessAsync(payload);
-                    _publisherHub.PublishResultToAll(result);
-                    break;
+                    string _errors = "";
+                    if (_payloadManager.IsValid(out _errors))
+                    {
+                        var payload = _payloadManager.LoadJob();
+                        var result = await _wordLadderProcessor.ProcessAsync(payload);
+                        _publisherHub.PublishResultToAll(result);
+                        break;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Invalid Arguments.{0}", _errors);
+                    }
                 }
-                else
+                catch (Exception e) 
                 {
-                    _logger.LogWarning("Invalid Arguments.{0}", _errors);
+                    _logger.LogError("{0}:{1}", e.Message, e.StackTrace);
                 }
-
             }
             //return Task.CompletedTask;
         }

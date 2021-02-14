@@ -21,29 +21,34 @@ namespace WordLadder.Services.Imp
         private WordLadderOptions _wordLadderOptions;
         ILogger<WordListRepository> _logger;
 
+        public List<string> WordList =>  _baseWordList;
+
         public WordListRepository(ILogger<WordListRepository> logger, IOptions<WordLadderOptions> options)
         {
             _baseWordList = new List<string>();
-            _args = Environment.GetCommandLineArgs().Skip(1).ToArray();
+            _args = GetCommandLineArgs();
             _wordLadderOptions = options.Value;
             _logger = logger;
         }
 
+        public virtual string[] GetCommandLineArgs() => Environment.GetCommandLineArgs().Skip(1).ToArray();
+
         public List<string> All()
         {
+            
             if (_baseWordList.Count == 0) Load();
 
             return this._baseWordList;
         }
 
-        public void Clean()
+        public void Clear()
         {
             _baseWordList.Clear();
         }
 
         public List<string> GetFiltered(Func<string, bool> filterPredicate)
         {
-            if (_baseWordList.Count == 0) Load();
+            if (WordList.Count == 0) Load();
 
             return this._baseWordList.Where(filterPredicate).Select(e => e).ToList();
         }
@@ -52,7 +57,7 @@ namespace WordLadder.Services.Imp
         {
             try
             {
-                var payload = CommonHelpers.LoadJob(_args,  _wordLadderOptions.TypeOfSearch.Value);
+                var payload = CommonHelpers.LoadJob(_args, _wordLadderOptions.TypeOfSearch.Value);
                 string[] _lines;
                 if (!string.IsNullOrEmpty(payload.SourceFilePath))
                 {
@@ -60,9 +65,10 @@ namespace WordLadder.Services.Imp
                 }
                 else if (!string.IsNullOrEmpty(_wordLadderOptions.LocalWordDictionaryFilePath))
                 {
-                    _lines = File.ReadAllLines(payload.SourceFilePath);
+                    _lines = File.ReadAllLines(_wordLadderOptions.LocalWordDictionaryFilePath);
                 }
-                else {
+                else
+                {
                     _logger.LogError("word Source not found. Unable to continue to process.");
                     throw new SourceNotFoundException();
                 }
@@ -73,6 +79,10 @@ namespace WordLadder.Services.Imp
                     throw new SourceNotFoundException();
                 }
                 this._baseWordList.AddRange(_lines);
+            }
+            catch (SourceNotFoundException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

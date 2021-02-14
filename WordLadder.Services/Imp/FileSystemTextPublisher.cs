@@ -14,12 +14,12 @@ namespace WordLadder.Services.Imp
     /// </summary>
     public class FileSystemTextPublisher : IPublisher
     {
-        private ILogger<FileSystemTextPublisher> _logger;
+        private ILogger<IPublisher> _logger;
         private WordLadderOptions wordLadderOptions;
 
 
 
-        public FileSystemTextPublisher(ILogger<FileSystemTextPublisher> logger, IOptions<WordLadderOptions> options)
+        public FileSystemTextPublisher(ILogger<IPublisher> logger, IOptions<WordLadderOptions> options)
         {
             _logger = logger;
             wordLadderOptions = options.Value;

@@ -15,10 +15,10 @@ namespace WordLadder.Services.Imp
     /// </summary>
     public class FileSystemCSVPublisher : IPublisher
     {
-        private ILogger<FileSystemTextPublisher> _logger;
+        private ILogger<IPublisher> _logger;
         private WordLadderOptions wordLadderOptions;
 
-        public FileSystemCSVPublisher(ILogger<FileSystemTextPublisher> logger, IOptions<WordLadderOptions> options)
+        public FileSystemCSVPublisher(ILogger<IPublisher> logger, IOptions<WordLadderOptions> options)
         {
             _logger = logger;
             wordLadderOptions = options.Value;
@@ -31,10 +31,8 @@ namespace WordLadder.Services.Imp
             {
 
                 var filePath = ResolveFilePath(result.Payload);
-                StringBuilder sb = new StringBuilder();
-                result.Results.ForEach(list => sb.AppendLine(string.Join(";", list)));
 
-                SaveFile(filePath, sb.ToString());
+                SaveFile(filePath, string.Join(";", result.Result));
             }
             catch (Exception e)
             {

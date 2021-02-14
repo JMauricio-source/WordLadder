@@ -9,6 +9,6 @@ namespace WordLadder.Services.Abstract
     public interface IWordLadderProcessor
     {
 
-        Task<ProcessingResult> ProcessAsync(JobPayloadCommand payload);
+         Task<ProcessingResult> ProcessAsync(JobPayloadCommand payload);
     }
 }

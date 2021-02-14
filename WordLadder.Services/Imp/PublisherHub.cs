@@ -9,10 +9,10 @@ namespace WordLadder.Services.Imp
 {
     public class PublisherHub : IPublisherHub
     {
-        private ILogger<PublisherHub> _logger;
+        private ILogger<IPublisherHub> _logger;
         private IEnumerable<IPublisher> _publishers;
 
-        public PublisherHub(ILogger<PublisherHub> logger, IEnumerable<IPublisher> publishers)
+        public PublisherHub(ILogger<IPublisherHub> logger, IEnumerable<IPublisher> publishers)
         {
             _logger = logger;
             _publishers = publishers;

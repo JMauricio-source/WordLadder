@@ -7,7 +7,9 @@ namespace WordLadder.Services.Abstract
     public interface IWordListRepository
     {
 
-        void Clean();
+        public List<string> WordList { get; }
+
+        void Clear();
 
         List<string> All();
 

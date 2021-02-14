@@ -12,7 +12,7 @@ namespace WordLadder.Services
         private const string _d = "-d";
         private const string _o = "-o";
 
-        public static Dictionary<string, string> keyValuePairs(string [] _args)
+        public static Dictionary<string, string> keyValuePairs(string[] _args)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>()
             { { _s,"" },{ _f,"" },{ _d,"" },{ _o,"" } };
@@ -31,17 +31,19 @@ namespace WordLadder.Services
             return dict;
         }
 
-        public static JobPayloadCommand LoadJob(string[] _args, JobPayloadCommand.SearchType searchType )
+        public static JobPayloadCommand LoadJob(string[] _args, JobPayloadCommand.SearchType searchType)
         {
             JobPayloadCommand j = new JobPayloadCommand();
-            var dict = keyValuePairs(_args);
+            if (_args != null && _args.Length > 0)
+            {
+                var dict = keyValuePairs(_args);
 
-            j.StartWord = dict[_s];
-            j.EndWord = dict[_f];
-            j.SourceFilePath = dict[_d];
-            j.ResultPublicationPath = dict[_o];
-            j.TypeOfSearch = searchType;
-
+                j.StartWord = dict[_s];
+                j.EndWord = dict[_f];
+                j.SourceFilePath = dict[_d];
+                j.ResultPublicationPath = dict[_o];
+                j.TypeOfSearch = searchType;
+            }
             return j;
         }
 

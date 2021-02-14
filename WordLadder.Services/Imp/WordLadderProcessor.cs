@@ -14,7 +14,7 @@ namespace WordLadder.Services.Imp
 {
     public class WordLadderProcessor : IWordLadderProcessor
     {
-        private ILogger<WordLadderProcessor> _logger;
+        private ILogger<IWordLadderProcessor> _logger;
         private IWordListRepository _repository;
         private List<string> _workingWordList;
         private List<string> _workingMatchList;
@@ -22,8 +22,9 @@ namespace WordLadder.Services.Imp
         private ProcessingResult _processingResult;
 
         public WordLadderProcessor(
-            ILogger<WordLadderProcessor> logger,
-            IWordListRepository repository, IOptions<WordLadderOptions> options
+            ILogger<IWordLadderProcessor> logger,
+            IWordListRepository repository, 
+            IOptions<WordLadderOptions> options
             )
         {
             _logger = logger;
@@ -39,7 +40,7 @@ namespace WordLadder.Services.Imp
             Continue
         }
 
-        Task<ProcessingResult> IWordLadderProcessor.ProcessAsync(JobPayloadCommand payload)
+        public Task<ProcessingResult> ProcessAsync(JobPayloadCommand payload)
         {
             var _startWord = payload.StartWord;
             var _wordSize = _startWord.Length;
@@ -47,38 +48,43 @@ namespace WordLadder.Services.Imp
 
             List<string> resultList = new List<string>() { _startWord };
 
-       
+
             _workingMatchList.Clear();
             _workingWordList = _repository.GetFiltered((_word) => _word.Length == _wordSize);
             _workingWordList.Remove(_startWord);
 
-            bool keepProcessing = true;
-            ResultEval cycleResult;
-            MatchResult mResult = new MatchResult(_startWord, null);
-            MatchResult pointer = null;
-            cycleResult = MatchingCycleSearchable(_wordSize, mResult.SourceWord, mResult, payload);
-            pointer = mResult;
-            int counter = 0;
-            keepProcessing = cycleResult == ResultEval.Continue;
-
-            while (keepProcessing)
+            var _task = Task.Factory.StartNew(() =>
             {
-                //
-                foreach (var mr in pointer.MatchesList)
+                bool keepProcessing = true;
+                ResultEval cycleResult;
+                MatchResult mResult = new MatchResult(_startWord, null);
+                MatchResult pointer = null;
+                cycleResult = MatchingCycleSearchable(_wordSize, mResult.SourceWord, mResult, payload);
+                pointer = mResult;
+                int counter = 0;
+                keepProcessing = cycleResult == ResultEval.Continue;
+
+                while (keepProcessing)
                 {
-                    cycleResult = MatchingCycleSearchable(_wordSize, mr.SourceWord, mr, payload);
+                    //
+                    foreach (var mr in pointer.MatchesList)
+                    {
+                        cycleResult = MatchingCycleSearchable(_wordSize, mr.SourceWord, mr, payload);
 
-                    keepProcessing = cycleResult == ResultEval.Continue;
-                    if (!keepProcessing) break;
+                        keepProcessing = cycleResult == ResultEval.Continue;
+                        if (!keepProcessing) break;
+                    }
+
+                    pointer = payload.TypeOfSearch == JobPayloadCommand.SearchType.BREATH_FIRST ? NextNodeBreadFirst(pointer) : NextNodeDeepFirst(pointer);
+                    keepProcessing &= pointer != null;
+                    counter++;
+
                 }
+                //
 
-                pointer = payload.TypeOfSearch == JobPayloadCommand.SearchType.BREATH_FIRST ? NextNodeBreadFirst(pointer) : NextNodeDeepFirst(pointer);
-                keepProcessing &= pointer != null;
-                counter++;
-                
-            }
-            //
-            
+            });
+
+            _task.Wait();
 
             PrepareResult(payload);
 
@@ -87,7 +93,7 @@ namespace WordLadder.Services.Imp
 
         private void PrepareResult(JobPayloadCommand payload)
         {
-            if (_processingResult.Results.Count > 0)
+            if (_processingResult.Result.Count > 0)
             {
                 _processingResult.WasSuccefull = true;
                 _processingResult.ResultMessage = "Found a sequence between the start and end words.";
@@ -117,8 +123,8 @@ namespace WordLadder.Services.Imp
             var isfinal = IsFinal(mResult.MatchesList.Select(e => e.SourceWord).ToList(), payload.EndWord, payload);
             if (isfinal == ResultEval.IsFinalNotOK || isfinal == ResultEval.IsFinalOK)
             {
-                _processingResult.Results.Add(GetTreeLine(mResult, payload.EndWord));
-                
+                _processingResult.Result.AddRange(GetTreeLine(mResult, payload.EndWord));
+
                 if (isfinal == ResultEval.IsFinalOK)
                 {
                     _processingResult.End = DateTimeOffset.UtcNow;
@@ -139,7 +145,7 @@ namespace WordLadder.Services.Imp
                 resultEval = ResultEval.IsFinalOK;
             }
 
-             return resultEval;
+            return resultEval;
         }
 
         private List<string> GetTreeLine(MatchResult mResult, string finalWord)

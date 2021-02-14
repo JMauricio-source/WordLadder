@@ -12,7 +12,7 @@ using WordLadder.Services.Imp;
 
 namespace WordLadder.XUnit_Tests
 {
-    public class Test_Service_FileSystemPublisher
+    public class Test_Service_FileSystemCSVPublisher
     {
 
         [Fact]
@@ -24,7 +24,7 @@ namespace WordLadder.XUnit_Tests
             var mockOptions = new Mock<IOptions<WordLadderOptions>>();
 
 
-            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".txt");
+            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".csv");
             var _path = Path.GetFullPath(_newFilePath);
             WordLadderOptions wOp = new WordLadderOptions()
             {
@@ -34,7 +34,7 @@ namespace WordLadder.XUnit_Tests
 
             mockOptions.Setup(e => e.Value).Returns(wOp);
 
-            var _publisher = new FileSystemTextPublisher(mockIlloger.Object, mockOptions.Object);
+            var _publisher = new FileSystemCSVPublisher(mockIlloger.Object, mockOptions.Object);
             JobPayloadCommand payload = new JobPayloadCommand();
             payload.ResultPublicationPath = _path;
             //Act
@@ -58,7 +58,7 @@ namespace WordLadder.XUnit_Tests
             var mockOptions = new Mock<IOptions<WordLadderOptions>>();
 
 
-            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".txt");
+            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".csv");
             var _path = Path.GetFullPath(_newFilePath);
             WordLadderOptions wOp = new WordLadderOptions()
             {
@@ -68,7 +68,7 @@ namespace WordLadder.XUnit_Tests
 
             mockOptions.Setup(e => e.Value).Returns(wOp);
 
-            var _publisher = new FileSystemTextPublisher(mockIlloger.Object, mockOptions.Object);
+            var _publisher = new FileSystemCSVPublisher(mockIlloger.Object, mockOptions.Object);
             JobPayloadCommand payload = new JobPayloadCommand();
             //Act
             _publisher.Publish("This is a test", payload);
@@ -80,14 +80,14 @@ namespace WordLadder.XUnit_Tests
         }
 
         [Fact]
-        public void Can_write_To_txt_file_from_ProcessingResult()
+        public void Can_write_To_csv_file_from_ProcessingResult()
         {
             //Arrange
             var mockIlloger = new Mock<ILogger<IPublisher>>();
             var mockOptions = new Mock<IOptions<WordLadderOptions>>();
 
 
-            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".txt");
+            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".csv");
             var _path = Path.GetFullPath(_newFilePath);
             WordLadderOptions wOp = new WordLadderOptions()
             {
@@ -97,7 +97,7 @@ namespace WordLadder.XUnit_Tests
 
             mockOptions.Setup(e => e.Value).Returns(wOp);
 
-            var _publisher = new FileSystemTextPublisher(mockIlloger.Object, mockOptions.Object);
+            var _publisher = new FileSystemCSVPublisher(mockIlloger.Object, mockOptions.Object);
             JobPayloadCommand payload = new JobPayloadCommand();
             ProcessingResult _result = new ProcessingResult();
             _result.Payload = payload;
@@ -110,23 +110,22 @@ namespace WordLadder.XUnit_Tests
 
             _publisher.Publish(_result);
             //Assert
-            var fromFile = File.ReadAllLines(_path);
+            var fromFile = File.ReadAllText(_path);
 
             File.Delete(_path);
-            Assert.Equal("Post", fromFile[fromFile.Length -1]);
-            Assert.Equal("Pest", fromFile[fromFile.Length - 2]);
-            Assert.Equal("Test", fromFile[fromFile.Length - 3]);
+            Assert.Equal(string.Join(";", _result.Result), fromFile);
+
         }
 
         [Fact]
-        public void Can_write_To_txt_file_from_string()
+        public void Can_write_To_csv_file_from_string()
         {
             //Arrange
             var mockIlloger = new Mock<ILogger<IPublisher>>();
             var mockOptions = new Mock<IOptions<WordLadderOptions>>();
 
 
-            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".txt");
+            var _newFilePath = Path.Combine("./Data", Guid.NewGuid() + ".csv");
             var _path = Path.GetFullPath(_newFilePath);
             WordLadderOptions wOp = new WordLadderOptions()
             {

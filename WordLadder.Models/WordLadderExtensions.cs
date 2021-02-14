@@ -43,14 +43,9 @@ namespace WordLadder.Models
 
             if (processingResult.WasSuccefull) 
             {
-                sb.AppendLine($"Found {processingResult.Results.Count} results");
-                var counter = 1;
-                foreach (var _stringList in processingResult.Results) 
-                {
-                    sb.AppendLine($"Result {counter} - {_stringList.Count} words");
-                    _stringList.ForEach(e => sb.AppendLine(e));
-                    counter++;
-                }
+                sb.AppendLine($"Word ladder has {processingResult.Result.Count} words");
+                processingResult.Result.ForEach(e => sb.AppendLine(e));
+                
             }
                 
             return sb.ToString();

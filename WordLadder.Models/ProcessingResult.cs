@@ -12,11 +12,11 @@ namespace WordLadder.Models
 
         public ProcessingResult()
         {
-            Results = new List<List<string>>();
+            Result = new List<string>();
         }
 
         public JobPayloadCommand Payload { get; set; }
-        public List<List<string>> Results;
+        public List<string> Result;
         public bool WasSuccefull { get; set; }
         public string ResultMessage { get; set; }
 
